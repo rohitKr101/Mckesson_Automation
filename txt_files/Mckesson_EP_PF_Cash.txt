@@ -8,15 +8,15 @@ passWord =  "Qajun2026$$"
 
 '-----------------/Patient Details/-----------------
 lastName = "test"
-firstName = "Josh"
-DOB = "05/02/2002"
-gender = "male"
-address = "test asddress josh"
-ZIPCode = "28117"
-contactNumber = "1234567890"
+firstName = "rick"
+ 
+
+'-----------------/Rx Details/-----------------
+partiaFill = "5"
 
 TestArgs("uName") = userName
 TestArgs("pWord") = passWord
+TestArgs("pFill") = partiaFill
 
 Function passfacilityID(facilityID)
 	AIUtil("text_box", "Please enter a facility ID to log into").Type facilityID
@@ -31,7 +31,7 @@ Function oktaAuth(userName, passWord)
 	AIUtil("button", "Verify").Click
 End Function
 
-Function searchPatient(lastName, firstName, DOB)
+Function searchPatient(lastName, firstName)
 	wait(2)
 	AIUtil.FindTextBlock("Activities", micFromTop, 1).Click
 	AIUtil.FindTextBlock("Rx Intake").Click
@@ -39,54 +39,9 @@ Function searchPatient(lastName, firstName, DOB)
 	AIUtil.FindTextBlock("CF Patient Search:").Click
 	AIUtil("text_box", "Last Name (him chars:3) ancd/or Phone").Type lastName
 	AIUtil("text_box", "First Name (Min chars:1)").Type firstName
-	AIUtil("text_box", "Date of Birth").Type DOB
-	
-	'AIUtil("text_box", "", micFromTop, 1).Click
-	AIUtil("text_box", "", micWithAnchorOnLeft, AIUtil("calendar", micAnyText, micFromTop, 1)).Click
-'	WshShell.SendKeys "{Enter}"
 
-End Function
-
-Function addPatient(address, ZIPCode, contactNumber, gender)
-	AIUtil("button", "Search Local").Click
-	AIUtil("button", "Add Patient").Click
 	wait(2)
-'	AIUtil("combobox", "No Acknowledgement", micWithAnchorOnLeft, AIUtil("calendar")).Click
-	AIUtil("down_triangle", micAnyText, micWithAnchorOnLeft, AIUtil("calendar", micAnyText, micFromTop, 1)).Click
-	If gender = "male"  Then
-	        WshShell.SendKeys "{DOWN}"
-	        WshShell.SendKeys "{ENTER}"    
-	ElseIf gender = "female" Then
-            	WshShell.SendKeys "{DOWN 2}"
-	        WshShell.SendKeys "{ENTER}"
-	End If
-	
-	wait(2)
-	AIUtil("text_box", "*Address", micWithAnchorOnLeft, AIUtil.FindTextBlock("*Address")).Type address
-	
-	wait(2)
-	AIUtil.FindTextBlock("ZIP Code").Click
-	AIUtil("text_box", "ZIP Code", micWithAnchorOnLeft, AIUtil.FindTextBlock("*ZIP Code")).Type ZIPCode
-	
-	wait(2)
-	WshShell.SendKeys "{TAB}"
-	
-	wait(2)
-'	AIUtil("text_box", "", micWithAnchorOnRight, AIUtil("text_box", "", micFromTop, 18)).Type contactNumber
-	WshShell.SendKeys contactNumber
-	
-	wait(2)	
-	AIUtil("combobox", "Preferred Contact:", micWithAnchorOnLeft, AIUtil.FindTextBlock("Preferred Contact:")).Click
-'	AIUtil("combobox", "Preferred Contact:", micWithAnchorOnLeft, AIUtil("button", "Edit Privacy Status")).Click
-	WshShell.SendKeys "{DOWN 2}"
-    	WshShell.SendKeys "{ENTER}"
-	
-	wait(2)
-	AIUtil("check_box", "", micFromLeft, 4).SetState "On"
-	AIUtil("check_box", "", micFromRight, 1).SetState "On"
-	
-	
-	AIUtil("button", "Save").Click
+	WshShell.SendKeys "{Enter}"
 End Function
 
 
@@ -103,8 +58,11 @@ wait(2)
 WshShell.SendKeys "{ENTER}"
 
 '-------------------/ Add New Patient /------------------
-Call searchPatient(lastName, firstName, DOB)
-Call addPatient(address, ZIPCode, contactNumber, gender)
+Call searchPatient(lastName, firstName)
+
+
+
+
 
 
 
@@ -121,6 +79,7 @@ Set WshShell = CreateObject("WScript.Shell")
 
 Username = TestArgs("uName")
 Password = TestArgs("pWord")
+partialFill = TestArgs("pFill")
 
 Function createOrder()
 	AIUtil("button", "Add New Rx jam").Click
@@ -131,6 +90,12 @@ Function createOrder()
 	WshShell.SendKeys "1"
 	WshShell.SendKeys "{ENTER}"
 	'AIUtil("right_triangle", micAnyText, micFromBottom, 1).Click
+	
+'	------Select Cash------
+	wait(2)
+	AIUtil("combobox", "sa Qty Remaining").Click
+	WshShell.SendKeys "{HOME}"
+	WshShell.SendKeys "{ENTER}"
 End Function
 
 Function oktaAuth(nextStep, Username, Password)
@@ -164,15 +129,26 @@ Function addPrescriber()
 End Function
 
 Function addMedicine()
-	AIUtil("text_box", "*Product Name (or) NDC Number (or) """" Quick Code (or) ""-="" YWH Item Number").Type "amox"
+	AIUtil("text_box", "*Product Name (or) NDC Number (or) """" Quick Code (or) ""-="" YWH Item Number").Type "abi"
 	AIUtil("button", "Search Local").Click
 	
 	wait(2)
 '	AIUtil.FindTextBlock("AMOXICILL-CLARI 500 & 500 & 30 THPK", micWithAnchorOnLeft, AIUtil("button", "Bigger Image")).DoubleClick
 	WshShell.SendKeys "{ENTER}"
+	
+	wait(2)
+	Do While (AIUtil.FindTextBlock("Generic / Brand Substitution").Exist(1)) Or (AIUtil.FindTextBlock("Generic Substitution").Exist(1))
+		AIUtil("button", "Cancel").Click
+		wait(1)
+	Loop
 End Function
 
-Function dataEntry()
+Function dataEntry(partialFill)
+	wait(2)
+	AIUtil("calendar", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("*yWritten Date")).Click
+	wait(1)
+	WshShell.SendKeys "{ENTER}"
+	
 	wait(2)
 	AIUtil("text_box", "RESET", micWithAnchorOnLeft, AIUtil("text_box", "Written Qfy:")).Type "1qd"
 '	AIUtil("text_box", "RESET").Type "1qd"
@@ -181,9 +157,29 @@ Function dataEntry()
 	AIUtil("text_box", "Written Qfy:").Type "10"
 	WshShell.SendKeys "{ENTER}"
 '	AIUtil("text_box", "*Written Date").Type "06/13/2026"
-	AIUtil("calendar", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("*yWritten Date")).Click
+
+'	------Add partial amount------
+	AIUtil("button", "Rx Options .").Click
+'	wait(2)
+	WshShell.SendKeys "p"
+	wait(4)
+	WshShell.SendKeys partialFill
 	wait(1)
 	WshShell.SendKeys "{ENTER}"
+	wait(1)
+	AIUtil("button", "OK").Click
+	wait(1)
+	AIUtil("button", "Cancel", micWithAnchorOnLeft, AIUtil("button", "Save")).Click
+	
+	
+	
+	wait(2)
+	AIUtil("down_triangle", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("DAVY Code")).Click
+	wait(1)
+	WshShell.SendKeys "0"
+	WshShell.SendKeys "{ENTER}"
+
+	
 End Function
 
 
@@ -193,7 +189,7 @@ Call oktaAuth("NextWorkflowStep", Username, Password)
 
 Call addPrescriber()
 Call addMedicine()
-Call dataEntry()
+Call dataEntry(partialFill)
 Call oktaAuth("NextWorkflowStep", Username, Password)
 
 wait(2)
@@ -201,8 +197,11 @@ AIUtil("button", "Close").Click
 AIUtil("close", micAnyText, micFromBottom, 1).Click
 
 Call oktaAuth("Approve&Follow", Username, Password)
+wait(2)
+Call oktaAuth("Approve&Follow", Username, Password)
 AIUtil("button", "OK").Click
 
 Call oktaAuth("Override", Username, Password)
 Call oktaAuth("NextWorkflowStep", Username, Password)
+wait(2)
 Call oktaAuth("Approve", Username, Password)

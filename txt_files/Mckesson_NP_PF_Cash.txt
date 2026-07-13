@@ -8,10 +8,10 @@ passWord =  "Qajun2026$$"
 
 '-----------------/Patient Details/-----------------
 lastName = "test"
-firstName = "mile"
+firstName = "bush"
 DOB = "05/06/2000"
 gender = "male"
-address = "test asddress mile"
+address = "test asddress bush"
 ZIPCode = "28117"
 contactNumber = "1234567890"
 
@@ -124,6 +124,9 @@ Call addPatient(address, ZIPCode, contactNumber, gender)
 
 
 
+
+
+
 Set WshShell = CreateObject("WScript.Shell")
 
 Username = TestArgs("uName")
@@ -172,7 +175,7 @@ Function addPrescriber()
 End Function
 
 Function addMedicine()
-	AIUtil("text_box", "*Product Name (or) NDC Number (or) """" Quick Code (or) ""-="" YWH Item Number").Type "amox"
+	AIUtil("text_box", "*Product Name (or) NDC Number (or) """" Quick Code (or) ""-="" YWH Item Number").Type "abi"
 	AIUtil("button", "Search Local").Click
 	
 	wait(2)

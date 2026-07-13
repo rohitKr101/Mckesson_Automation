@@ -8,16 +8,16 @@ passWord =  "Qajun2026$$"
 
 '-----------------/Patient Details/-----------------
 lastName = "test"
-firstName = "harsh"
-DOB = "05/01/2000"
-gender = "male"
-address = "test address harsh"
+firstName = "Shiro"
+DOB = "05/07/2000"
+gender = "female"
+address = "test address Shiro"
 ZIPCode = "28117"
 contactNumber = "1234567890"
 
 '-----------------/3rd_Party Details/-----------------
-thirdParty =  "ct medicaid"
-cardHolderID = "001122"
+thirdParty =  "wellcare med b"
+cardHolderID = "221122"
 groupID = "01"
 
 TestArgs("uName") = userName
@@ -101,7 +101,8 @@ Function add3rdParty(lastName, firstName, thirdParty, cardHolderID, groupID)
 	WshShell.SendKeys "%3"
 	
 	AIUtil("button", "Add Plan").Click
-	AIUtil("text_box", "Third Party Name").Type thirdParty
+'	AIUtil("text_box", "Third Party Name").Type thirdParty
+	WshShell.SendKeys thirdParty
 	AIUtil("button", "Search").Click
 	wait(2)
 	WshShell.SendKeys "{ENTER}"
@@ -134,10 +135,24 @@ WshShell.SendKeys "{ENTER}"
 
 '-------------------/ Add New Patient /------------------
 Call searchPatient(lastName, firstName, DOB)
-wait(2)
-Call addPatient(address, ZIPCode, contactNumber, gender)
+'wait(2)
+'Call addPatient(address, ZIPCode, contactNumber, gender)
 wait(2)
 Call add3rdParty(lastName, firstName, thirdParty,  cardHolderID, groupID)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

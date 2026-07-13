@@ -2,16 +2,13 @@ Set WshShell = CreateObject("WScript.Shell")
 
 facilityID = "2650"
 
+'-----------------/Okta Authentication Details/-----------------
 userName = "ad-nuymp1"
-passWord =  "Qaapr2026$$"
+passWord =  "Qajun2026$$"
 
+'-----------------/Patient Details/-----------------
 lastName = "test"
 firstName = "rick"
-'DOB = "05/01/2000"
-gender = "female"
-address = "test asddress mute"
-ZIPCode = "28117"
-contactNumber = "1234567890"
 
 TestArgs("uName") = userName
 TestArgs("pWord") = passWord
@@ -37,7 +34,7 @@ Function searchPatient(lastName, firstName)
 	AIUtil.FindTextBlock("CF Patient Search:").Click
 	AIUtil("text_box", "Last Name (him chars:3) ancd/or Phone").Type lastName
 	AIUtil("text_box", "First Name (Min chars:1)").Type firstName
-'	AIUtil("text_box", "Date of Birth").Type DOB
+
 	wait(2)
 	WshShell.SendKeys "{Enter}"
 End Function
@@ -57,12 +54,6 @@ WshShell.SendKeys "{ENTER}"
 
 '-------------------/ Add New Patient /------------------
 Call searchPatient(lastName, firstName)
-
-
-
-
-
-
 
 
 
