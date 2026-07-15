@@ -1,0 +1,254 @@
+Set WshShell = CreateObject("WScript.Shell")
+
+facilityID = "2650"
+
+'-----------------/Okta Authentication Details/-----------------
+userName = "ad-nuymp1"
+passWord =  "Qajun2026$$"
+
+'-----------------/Patient Details/-----------------
+lastName = "test"
+firstName = "jin"
+
+'-----------------/3rd_Party Details/-----------------
+thirdParty =  "ct medicaid"
+cardHolderID = "215399"
+groupID = "01"
+
+'-----------------/Rx Details/-----------------
+partiaFill = "5"
+
+TestArgs("uName") = userName
+TestArgs("pWord") = passWord
+ TestArgs("pFill") = partialFill
+
+Function passfacilityID(facilityID)
+	AIUtil("text_box", "Please enter a facility ID to log into").Type facilityID
+	WshShell.SendKeys "{ENTER}"
+End Function
+
+Function oktaAuth(userName, passWord)
+	AIUtil.SetContext Window("regexpwndtitle:=Authentication", "regexpwndclass:=SunAwtDialog", "is owned window:=True", "is child window:=False")
+	AIUtil("text_box", "Username").Type userName
+	AIUtil("button", "Next").Click
+	AIUtil("text_box", "Password").Type passWord
+	AIUtil("button", "Verify").Click
+End Function
+
+Function searchPatient(lastName, firstName)
+	wait(2)
+	AIUtil.FindTextBlock("Activities", micFromTop, 1).Click
+	AIUtil.FindTextBlock("Rx Intake").Click
+	
+	AIUtil.FindTextBlock("CF Patient Search:").Click
+	AIUtil("text_box", "Last Name (him chars:3) ancd/or Phone").Type lastName
+	AIUtil("text_box", "First Name (Min chars:1)").Type firstName
+
+	wait(2)
+	WshShell.SendKeys "{Enter}"
+End Function
+
+Function add3rdParty(lastName, firstName, thirdParty, cardHolderID, groupID)
+	wait(2)
+	WshShell.SendKeys "{F5}"
+	wait(4)
+	WshShell.SendKeys "%3"
+	
+	AIUtil("button", "Add Plan").Click
+	AIUtil("text_box", "Third Party Name").Type thirdParty
+	AIUtil("button", "Search").Click
+	wait(2)
+	WshShell.SendKeys "{ENTER}"
+	
+	wait(2)
+	AIUtil("text_box", "Effective Date").Type cardHolderID
+	AIUtil("text_box", "Termination Date").Type groupID
+	
+	WshShell.SendKeys "%r"
+	AIUtil("text_box", "Last Name (in chars:3) and/or Phone").Type lastName
+	AIUtil("text_box", "First Name (Min chars:1)").Type firstName
+	AIUtil("button", "Search Local").Click
+	wait(2)
+	WshShell.SendKeys "{ENTER}"
+	
+	AIUtil("button", "Save").Click
+	
+	wait(2)
+	If AIUtil.FindTextBlock("Please set the billing order for the third party plans").Exist(2) Then	
+		wait(2)
+		WshShell.SendKeys "{TAB 2}"
+		wait(1)
+		WshShell.SendKeys "{ENTER}"
+	End If
+End Function
+
+
+
+'==========/ Invoke EnterpriseRx Application /==========
+AIUtil.SetContext Window("regexpwndtitle:=Loading EnterpriseRx\.\.\.", "regexpwndclass:=SunAwtFrame", "is owned window:=False", "is child window:=False")
+
+Call passfacilityID(facilityID)
+Call oktaAuth(userName, passWord)
+
+
+AIUtil.SetContext Window("regexpwndtitle:=McKesson EnterpriseRx", "regexpwndclass:=SunAwtFrame", "is owned window:=False", "is child window:=False")
+wait(2)
+WshShell.SendKeys "{ENTER}"
+
+'-------------------/ Search Existing Patient /------------------
+Call searchPatient(lastName, firstName)
+
+'-------------------/ Add 3rdParty /------------------
+wait(2)
+Call add3rdParty(lastName, firstName, thirdParty, cardHolderID, groupID)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Set WshShell = CreateObject("WScript.Shell")
+
+Username = TestArgs("uName")
+Password = TestArgs("pWord")
+partialFill = TestArgs("pFill")
+
+Function createOrder()
+	AIUtil("button", "Add New Rx jam").Click
+	AIUtil("button", "Create Order").Click
+	AIUtil("button", "OK").Click
+	
+	AIUtil("combobox", "*Prescription Origin Code:} = Blank F= Blank").Click
+	WshShell.SendKeys "1"
+	WshShell.SendKeys "{ENTER}"
+
+	'	------Select 3rdParty------
+	wait(2)
+	AIUtil("combobox", "sa Qty Remaining").Click
+	WshShell.SendKeys "{END}"
+	WshShell.SendKeys "{ENTER}"
+	
+	
+End Function
+
+Function oktaAuth(nextStep, Username, Password)
+	wait(2)
+	If nextStep = "NextWorkflowStep" or nextStep = "Approve&Follow" Then
+		WshShell.SendKeys "%w"
+	ElseIf nextStep = "Approve" Then
+		WshShell.SendKeys "%e"
+	ElseIf nextStep = "Override" Then
+		WshShell.SendKeys "%o"
+	End If
+	
+	wait(2)
+	WshShell.SendKeys "%r"
+	AIUtil("text_box", "Username").Type Username
+'	AIUtil("button", "Next").Click
+	WshShell.SendKeys "{ENTER}"
+	AIUtil("text_box", "Password").Type Password
+'	AIUtil("button", "Verify").Click
+	WshShell.SendKeys "{ENTER}"
+End Function
+
+Function addPrescriber()
+	AIUtil("text_box", "Last Name andior Phone").Type "test"
+	AIUtil("text_box", "First Name").Type "claim"
+	AIUtil("button", "Search Local").Click
+	
+	wait(2)
+'	AIUtil.FindTextBlock("1600 BOSTON ROAD", micWithAnchorOnLeft, AIUtil("button", "Bigger Image")).DoubleClick
+	WshShell.SendKeys "{ENTER}"
+End Function
+
+Function addMedicine()
+	AIUtil("text_box", "*Product Name (or) NDC Number (or) """" Quick Code (or) ""-="" YWH Item Number").Type "lipitor"
+	AIUtil("button", "Search Local").Click
+	
+	wait(2)
+'	AIUtil.FindTextBlock("AMOXICILL-CLARI 500 & 500 & 30 THPK", micWithAnchorOnLeft, AIUtil("button", "Bigger Image")).DoubleClick
+	WshShell.SendKeys "{ENTER}"
+	
+	wait(2)
+	Do While (AIUtil.FindTextBlock("Generic / Brand Substitution").Exist(1)) Or (AIUtil.FindTextBlock("Generic Substitution").Exist(1))
+		AIUtil("button", "Cancel").Click
+		wait(1)
+	Loop
+End Function
+
+Function dataEntry(partialFill)
+	wait(2)
+	AIUtil("calendar", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("*yWritten Date")).Click
+	wait(1)
+	WshShell.SendKeys "{ENTER}"
+	
+	wait(2)
+	AIUtil("text_box", "RESET", micWithAnchorOnLeft, AIUtil("text_box", "Written Qfy:")).Type "1qd"
+'	AIUtil("text_box", "RESET").Type "1qd"
+	
+	wait(2)
+	AIUtil("text_box", "Written Qfy:").Type "10"
+	WshShell.SendKeys "{ENTER}"
+'	AIUtil("text_box", "*Written Date").Type "06/13/2026"
+	wait(2)
+	
+'	------Add partial amount------
+	WshShell.SendKeys "%p"
+	wait(2)
+	WshShell.SendKeys "p"
+	wait(2)
+	WshShell.SendKeys partialFill
+	wait(1)
+	WshShell.SendKeys "{ENTER}"
+	wait(1)
+	AIUtil("button", "OK").Click
+	wait(1)
+	AIUtil("button", "Cancel", micWithAnchorOnLeft, AIUtil("button", "Save")).Click
+
+	
+	wait(2)
+	AIUtil("down_triangle", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("DAVY Code")).Click
+	wait(1)
+	WshShell.SendKeys "0"
+	WshShell.SendKeys "{ENTER}"
+	
+End Function
+
+
+'-------------------/ Add New Rx /------------------
+Call createOrder()
+Call oktaAuth("NextWorkflowStep", Username, Password)
+
+Call addPrescriber()
+Call addMedicine()
+Call dataEntry(partialFill)
+Call oktaAuth("NextWorkflowStep", Username, Password)
+
+wait(2)
+AIUtil("button", "Close").Click
+AIUtil("close", micAnyText, micFromBottom, 1).Click
+
+wait(2)
+Call oktaAuth("Approve&Follow", Username, Password)
+wait(2)
+Call oktaAuth("Approve&Follow", Username, Password)
+AIUtil("button", "OK").Click
+
+Call oktaAuth("Override", Username, Password)
+Call oktaAuth("NextWorkflowStep", Username, Password)
+wait(2)
+Call oktaAuth("Approve", Username, Password)
